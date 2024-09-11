@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controller/Dashboard');
 
+// Existing Routes
+
 // Get count of Departments
 router.get('/departments/count', dashboardController.getDepartmentCount);
 
@@ -38,6 +40,14 @@ router.get('/staff/solvedTicketsHistory/:staffID', dashboardController.getAllSol
 // Get weekly, monthly, and yearly performance of a specific staff member
 router.post('/staff/performance', dashboardController.getStaffPerformance);
 
+// Get count of Repairs by Status (Pending, Done, Delivered)
+router.get('/repairs/statusCounts', dashboardController.getRepairStatusCounts);
+
+// Get repair count by device type
+router.get('/repairs/deviceCounts', dashboardController.getRepairCountByDevice);
+ 
+// Get low quantity items (below threshold)
+router.get('/items/lowQuantity', dashboardController.getLowQuantityItems);
+
 
 module.exports = router;
- 

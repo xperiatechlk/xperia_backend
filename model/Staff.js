@@ -32,12 +32,7 @@ const staffSchema = new mongoose.Schema({
     employeeID: {
         type: String,
        
-    },
-    departmentID: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department',
-       
-    },
+    }, 
     password: {
         type: String,
        

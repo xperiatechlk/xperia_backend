@@ -36,6 +36,7 @@ const departmentRoutes = require('./routes/Department');
 const DashboardRoutes = require('./routes/Dashboard');
 const ItemRoutes = require('./routes/Items');
 const RepairRoutes = require('./routes/Repair');
+const SallesRoutes = require('./routes/Salles');
 
 app.use('/api/customers', customerRoutes);
 app.use('/api/staff', staffRoutes);
@@ -44,6 +45,7 @@ app.use('/api/departments', departmentRoutes);
 app.use('/api/Dashboard', DashboardRoutes);
 app.use('/api/items', ItemRoutes);
 app.use('/api/repairs', RepairRoutes);
+app.use('/api/sales', SallesRoutes);
 
 // Start the server 
 app.listen(PORT, () => {
@@ -57,6 +59,7 @@ app.listen(PORT, () => {
     console.log('\t-> api/Dashboard')
     console.log('\t-> api/items')
     console.log('\t-> api/repairs')
+    console.log('\t-> api/sales')
     console.log('###################################\n')
 });
 

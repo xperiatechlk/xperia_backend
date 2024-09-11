@@ -2,6 +2,8 @@ const { Department } = require("../model/Department");
 const { Ticket } = require("../model/Ticket");
 const { Staff } = require("../model/Staff");
 const { Customer } = require("../model/Customer");
+const { Repair } = require("../model/Repair");
+const { Item } = require("../model/Item");
 const moment = require('moment');
 
 
@@ -427,6 +429,109 @@ class DashboardController {
             res.status(500).json({ error: err.message });
         }
     }
+
+    async getRepairStatusCounts(req, res) {
+        try {
+            const repairStatusCountsByDate = await Repair.aggregate([
+                {
+                    $group: {
+                        _id: {
+                            date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }, // Group by date
+                            status: "$status" // Group by repair status
+                        },
+                        count: { $sum: 1 } // Count the number of repairs per status per day
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$_id.date", // Group by date
+                        repairs: {
+                            $push: {
+                                status: "$_id.status",
+                                count: "$count"
+                            }
+                        }
+                    }
+                },
+                {
+                    $sort: { _id: 1 } // Sort by date ascending
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        date: "$_id", // Rename _id to date
+                        repairs: 1
+                    }
+                }
+            ]);
+
+            // Transform the result into chart-friendly data
+            const dates = [];
+            const pendingCounts = [];
+            const completedCounts = [];
+            const deliveredCounts = [];
+
+            repairStatusCountsByDate.forEach(entry => {
+                dates.push(entry.date);
+
+                const pendingData = entry.repairs.find(r => r.status === 'Pending');
+                const completedData = entry.repairs.find(r => r.status === 'Done');
+                const deliveredData = entry.repairs.find(r => r.status === 'Delivered');
+
+                pendingCounts.push(pendingData ? pendingData.count : 0);
+                completedCounts.push(completedData ? completedData.count : 0);
+                deliveredCounts.push(deliveredData ? deliveredData.count : 0);
+            });
+
+            res.json({
+                dates,
+                pendingCounts,
+                completedCounts,
+                deliveredCounts
+            });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+
+    // Get repair count by device type
+    async getRepairCountByDevice(req, res) {
+        try {
+            const deviceRepairCounts = await Repair.aggregate([
+                {
+                    $group: {
+                        _id: "$deviceType", // Group by deviceType
+                        count: { $sum: 1 } // Count the number of repairs per device
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        deviceType: "$_id", // Rename _id to deviceType
+                        count: 1
+                    }
+                }
+            ]);
+
+            res.json(deviceRepairCounts);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+
+    async getLowQuantityItems(req, res) {
+        const threshold = req.query.threshold || 10; // Default threshold to 10 if not provided
+        try {
+            const lowQuantityItems = await Item.find({
+                quantity: { $lt: threshold }
+            });
+
+            res.json(lowQuantityItems);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+
 }
 
 
