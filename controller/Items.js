@@ -1,4 +1,5 @@
 const { Item } = require("../model/Item");
+const XLSX = require('xlsx');
 
 class ItemController {
     // Add Item
@@ -74,6 +75,40 @@ class ItemController {
             res.json({ success: true, message: 'Item deleted successfully' });
         } catch (err) {
             res.status(500).json({ error: err.message });
+        }
+    }
+
+    // Bulk Add Items from Excel File
+    async bulkAddItems(req, res) {
+        try {
+            const filePath = req.file.path;
+
+            // Read the Excel file
+            const workbook = XLSX.readFile(filePath);
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+            // Map Excel data to Item model schema
+            const items = worksheet.map(row => ({
+                itemName: row['name'],
+                category: row['category'],
+                quantity: row['quentity'], // Handle typo in the Excel file field
+                unitPrice: row['unit price'],
+                sellingPrice: row['selling price'],
+                description: row['description'] || '',
+            }));
+
+            // Bulk insert the items using Mongoose
+            const result = await Item.insertMany(items);
+
+            // Send success response
+            res.status(201).json({
+                success: true,
+                message: 'Items added successfully',
+                insertedCount: result.length,
+            });
+        } catch (err) {
+            res.status(500).json({ success: false, error: err.message });
         }
     }
 }
