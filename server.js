@@ -70,3 +70,4 @@ app.listen(PORT, () => {
     console.log('###################################\n')
 });
 
+module.exports = app;
