@@ -7,7 +7,7 @@ const cors = require("cors"); 0
 dotenv.config();
 const app = express();
 const corsOptions = {
-    origin: ['http://localhost:3000', 'https://xperia.vercel.app/'], // Add both local and deployed URLs
+    origin: ['http://localhost:3000', 'https://xperia.vercel.app'], // Add both local and deployed URLs
     methods: 'GET,POST,PUT,DELETE',
     credentials: true
 };
